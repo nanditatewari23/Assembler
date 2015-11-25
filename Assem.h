@@ -5,12 +5,12 @@
 typedef struct line
 {
     int add;
-    char lbl[10],comm[20],operand[20],object[20];
+    char lbl[10],comm[20],opp[20];
     struct line *next;
 }line;
 
 
-int insertq(char program[],line **r,line **f,int *start)
+int Pass1(char program[],line **r,line **f,int *start)
 {
 
     FILE *f1,*info,*f2,*O;
@@ -21,7 +21,6 @@ int insertq(char program[],line **r,line **f,int *start)
     f2=fopen("Symbol.txt","w");
     fclose(f2);
     f1=fopen(program,"r");
-    info=fopen("Name.txt","w");
     if(f1!=NULL)
     {
         np=(line*)malloc(sizeof(line));
@@ -47,7 +46,7 @@ int insertq(char program[],line **r,line **f,int *start)
             *r=np;
         }
         np->add=0000;
-        strcpy(np->operand,"");
+        strcpy(np->opp,"");
         fscanf(f1,"%X\n",&LOCCTR);
         *start=LOCCTR;
         while(!feof(f1))
@@ -56,9 +55,9 @@ int insertq(char program[],line **r,line **f,int *start)
             fscanf(f1,"%s ",&np->lbl);
             fscanf(f1,"%s ",&np->comm);
             if(strcmp(np->comm,"RSUB")!=0)
-                fscanf(f1,"%s ",&np->operand);
+                fscanf(f1,"%s ",&np->opp);
             else
-                strcpy(np->operand,"");
+                strcpy(np->opp,"");
             if(strcmp(np->comm,"START")!=0)
                 np->add=LOCCTR;
             else
@@ -70,7 +69,6 @@ int insertq(char program[],line **r,line **f,int *start)
                 if(strcmp(np->comm,opc)==0 || strcmp(np->comm,"WORD")==0 || strcmp(np->comm,"BYTE")==0 ||strcmp(np->comm,"RESW")==0||strcmp(np->comm,"RESB")==0 || strcmp(np->comm,"RSUB")==0 )
                 {
                     flag=0;
-                    printf("%s-%s\n",np->comm,opc);
                     break;
 
                 }
@@ -123,26 +121,26 @@ int insertq(char program[],line **r,line **f,int *start)
             flag=0;
             if(strcmp(np->comm,"END")==0)
             {
-                info=fopen("info.txt","w");
+                info=fopen("Name.txt","w");
                 fprintf(info,"%s\n%d",Pname,LOCCTR-*start+1);
                 fclose(info);
                 return 0;
             }
             else if(strcmp(np->comm,"RESB")==0)
             {
-                num=atoi(np->operand);
+                num=atoi(np->opp);
                 LOCCTR+=num;
             }
             else if(strcmp(np->comm,"RESW")==0)
             {
-                num=atoi(np->operand);
+                num=atoi(np->opp);
                 LOCCTR+=num*3;
             }
             else if(strcmp(np->comm,"WORD")==0)
                 LOCCTR+=3;
             else if(strcmp(np->comm,"BYTE")==0)
             {
-                l=strlen(np->operand);
+                l=strlen(np->opp);
                 LOCCTR+=l;
             }
             else
@@ -151,4 +149,3 @@ int insertq(char program[],line **r,line **f,int *start)
     }
     return 1;
 }
-
