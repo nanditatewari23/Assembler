@@ -18,6 +18,8 @@ int insertq(char program[],line **r,line **f,int *start)
     int flag=0,add;
     char Pname[7],symbol[25],opc[25];
     int LOCCTR=0000,error=0,num,l;
+    f2=fopen("Symbol.txt","w");
+    fclose(f2);
     f1=fopen(program,"r");
     info=fopen("Name.txt","w");
     if(f1!=NULL)
@@ -99,6 +101,26 @@ int insertq(char program[],line **r,line **f,int *start)
                 (*r)->next=np;
                 *r=np;
             }
+            f2=fopen("Symbol.txt","r");
+            while(!feof(f2))
+            {
+                fscanf(f2,"%s ",symbol);
+                fscanf(f2,"%X ",&add);
+                if(strcmp(np->lbl,symbol)==0)
+                {
+                    printf("\nDuplicate Labels!!");
+                    flag=1;
+                    return 1;
+                }
+            }
+            fclose(f2);
+            if(flag==0 && strcmp(np->comm,"START")!=0 && strcmp(np->comm,"END")!=0 && strcmp(np->lbl,"##")!=0)
+            {
+                f2=fopen("Symbol.txt","a");
+                fprintf(f2,"%s %04X\n",np->lbl,np->add);
+                fclose(f2);
+            }
+            flag=0;
             if(strcmp(np->comm,"END")==0)
             {
                 info=fopen("info.txt","w");
@@ -129,5 +151,4 @@ int insertq(char program[],line **r,line **f,int *start)
     }
     return 1;
 }
-
 
