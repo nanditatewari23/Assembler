@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<malloc.h>
 #include<string.h>
-typedef struct line
+typedef struct line                         //the data read from the file is stored in this structure
 {
     int l,add;
     char lbl[10],comm[20],opp[20];
@@ -10,7 +10,7 @@ typedef struct line
 }line;
 
 
-int Pass1(char program[],line **r,line **f,int *start)
+int Pass1(char program[],line **r,line **f,int *start)          //perform addressing
 {
 
     FILE *f1,*info,*f2,*O;
@@ -18,7 +18,7 @@ int Pass1(char program[],line **r,line **f,int *start)
     int flag=0,add,L=1;
     char Pname[7],symbol[25],opc[25];
     int LOCCTR=0000,error=0,num,l;
-    f2=fopen("Symbol.txt","w");
+    f2=fopen("Symbol.txt","w");                 //SYMTAB
     fclose(f2);
     f1=fopen(program,"r");
     if(f1==NULL)
@@ -44,7 +44,7 @@ int Pass1(char program[],line **r,line **f,int *start)
             *r=np;
         }
         else
-        {
+            {
             np->next=NULL;
             (*r)->next=np;
             *r=np;
@@ -59,10 +59,10 @@ int Pass1(char program[],line **r,line **f,int *start)
             np=(line*)malloc(sizeof(line));
             fscanf(f1,"%s ",&np->lbl);
             fscanf(f1,"%s ",&np->comm);
-            np->l=L;
+            np->l=L;                                                        //including line numbers
             L++;
             if(strcmp(np->comm,"RSUB")!=0)
-                fscanf(f1,"%s ",&np->opp);
+                fscanf(f1,"%s ",&np->opp);                                  //direct operand
             else
                 strcpy(np->opp,"");
             if(strcmp(np->comm,"START")!=0)
@@ -73,7 +73,7 @@ int Pass1(char program[],line **r,line **f,int *start)
                 getch();
                 return 1;
             }
-            O=fopen("opcode.txt","r");
+            O=fopen("opcode.txt","r");                                       //OPTAB
             while(!feof(O))
             {
                 fscanf(O,"%s ",opc);
@@ -158,9 +158,9 @@ int Pass1(char program[],line **r,line **f,int *start)
             {
                 l=strlen(np->opp);
                 if(l%2==0)
-                    LOCCTR+=l/2;
+                    LOCCTR+=l/2;                        //even
                 else
-                    LOCCTR+=(l+1)/2;
+                    LOCCTR+=(l+1)/2;                    //odd
             }
             else
                 LOCCTR+=3;
@@ -170,7 +170,7 @@ int Pass1(char program[],line **r,line **f,int *start)
     return 1;
 }
 
-void interf(line *r,int start)
+void interf(line *r,int start)                          //intermediate file
 {
     line *np;
     FILE *in=fopen("mid.txt","w");
@@ -190,7 +190,7 @@ void interf(line *r,int start)
     }
     fclose(in);
 }
-int Pass2(line *r,int start)
+int Pass2(line *r,int start)                        //calculating object code
 {
     line *p;
     FILE *op,*s,*file;
@@ -199,7 +199,7 @@ int Pass2(line *r,int start)
     int sf=0,f=0,opc,i,l,num,LOCCTR=start;
     if(r!=NULL)
     {
-        p=r;
+        p=r;                        //value of rare stored in a temporary pointer p
         while(p!=NULL)
         {
 
@@ -229,7 +229,7 @@ int Pass2(line *r,int start)
                     }
                 }
                 fclose(op);
-                if(f==1 && sf==1)
+                if(f==1 && sf==1)                       //object code in correct and the symbol is in symbol table
                 {
                     fprintf(file,"%d",opc);
                     fprintf(file,"%s ",add);
@@ -309,7 +309,7 @@ int Pass2(line *r,int start)
     fclose(file);
     return 0;
 }
-void text(int start)
+void text(int start)                                            //header and text record
 {
 
     FILE *info,*obj,*F;
@@ -317,9 +317,9 @@ void text(int start)
     int lp,l,i,cnt;
     info=fopen("Name.txt","r");
     fscanf(info,"%s\n",name);
-    fscanf(info,"%d",&lp);
+    fscanf(info,"%d",&lp);                                      //lp is length of program
     obj=fopen("Oprogram.txt","w");
-    fprintf(obj,"H^%s",name);
+    fprintf(obj,"H^%s",name);                                   //header record
     l=strlen(name);
     for(i=0;i<6-l;i++)
     {
@@ -336,7 +336,7 @@ void text(int start)
         fscanf(F,"%s\n",address);
         if(strcmp(opjcode,"NIL")!=0)
         {
-            fprintf(obj,"\nT^%s^",address);
+            fprintf(obj,"\nT^%s^",address);                 //text record
             strcat(st,"^");
             strcat(st,opjcode);
             l=strlen(opjcode);
@@ -361,11 +361,11 @@ void text(int start)
         fprintf(obj,"%s",st);
         strcpy(st,"");
     }
-    fprintf(obj,"\n\nE^%s",name);
+    fprintf(obj,"\n\nE^%s",name);                           //end record
     fclose(obj);
     fclose(F);
 }
-int mainp()
+int mainp()                                                 //calling several functions according to the procedure
 {
     char program[25];
     int e=0,start;
